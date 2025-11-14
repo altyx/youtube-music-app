@@ -1,0 +1,27 @@
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Youtube MSC!</title>
+      <meta http-equiv="Content-Security-Policy"
+            content="default-src 'self';
+                 script-src 'self' 'unsafe-inline';
+                 style-src 'self' 'unsafe-inline';
+                 webview-src https://music.youtube.com;">
+  </head>
+  <body>
+  <webview
+          id="ytm"
+          src="https://music.youtube.com"
+          style="width:100vw; height:100vh;"
+          partition="persist:youtube"
+          nodeintegration="false"
+          nodeintegrationinsubframes="false"
+          disablewebsecurity="false"
+          enableremotemodule="false"
+          webpreferences="contextIsolation=true"
+  ></webview>
+    <script type="module" src="/src/renderer.ts"></script>
+
+  </body>
+</html>
