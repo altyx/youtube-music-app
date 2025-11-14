@@ -5,8 +5,10 @@ import started from 'electron-squirrel-startup';
 if (started) {
   app.quit();
 }
-let mainWindow: BrowserWindow | null = null
+
+let mainWindow: BrowserWindow | null = null;
 let trayWindow: BrowserWindow | null = null;
+let tray: Tray | null = null;
 
 const createWindow = () => {
   const iconPath = getAppIconPath();
@@ -32,67 +34,76 @@ const createWindow = () => {
     mainWindow.loadFile(path.join(__dirname, '../renderer/main_window/index.html'));
   }
 
-  // Bloquer la navigation non autorisée
   mainWindow.webContents.on('will-navigate', (event, navigationUrl) => {
     const parsedUrl = new URL(navigationUrl);
-    // Autoriser uniquement les URLs de développement et file://
     if (parsedUrl.origin !== 'file://' && !navigationUrl.startsWith(MAIN_WINDOW_VITE_DEV_SERVER_URL || '')) {
       event.preventDefault();
-      console.warn('Navigation bloquée vers:', navigationUrl);
     }
   });
 
-  // Empêcher l'ouverture de nouvelles fenêtres
   mainWindow.webContents.setWindowOpenHandler(() => {
     return { action: 'deny' };
   });
 
-  // ✅ icône du Dock (macOS uniquement)
   if (process.platform === 'darwin') {
-    app.dock.setIcon(iconPath);
+    try {
+      app.dock.setIcon(iconPath);
+    } catch (err) {
+      console.warn('Could not set dock icon:', err);
+    }
   }
 
   if (!app.isPackaged) {
     mainWindow.webContents.openDevTools();
   }
-  mainWindow.on('closed', () => (mainWindow = null))
+
+  mainWindow.on('closed', () => (mainWindow = null));
 };
 
 app.whenReady().then(() => {
-  createWindow()
-  createTray()
-  registerMediaShortcuts()
-})
-
+  createWindow();
+  createTray();
+  registerMediaShortcuts();
+});
 
 function createTray() {
   const iconPath = app.isPackaged
-    ? path.join(process.resourcesPath, 'youtube_music.png')
-    : path.join(process.cwd(), 'public', 'youtube_music.png');
+    ? path.join(process.resourcesPath, 'youtube.jpg')
+    : path.join(process.cwd(), 'public', 'youtube.jpg');
+
   const trayIcon = nativeImage.createFromPath(iconPath);
 
-  const tray = new Tray(trayIcon.resize({ width: 16, height: 16 }));
+  if (trayIcon.isEmpty()) {
+    console.error('❌ Tray icon is empty! Path:', iconPath);
+    console.error('Make sure youtube_music.png is in the resources folder');
+    return;
+  }
+
+  tray = new Tray(trayIcon.resize({ width: 16, height: 16 }));
   tray.setToolTip('YouTube Music');
+
   tray.on('click', () => {
     if (trayWindow?.isVisible()) {
       trayWindow.hide();
     } else {
-      createOrShowTrayWindow(tray);
+      if (tray) createOrShowTrayWindow(tray);
     }
   });
 }
+
 function getAppIconPath() {
   if (app.isPackaged) {
-    return path.join(process.resourcesPath, 'youtube_music.icns');
+    return path.join(process.resourcesPath, 'youtube.icns');
   } else {
-    return path.join(process.cwd(), 'public', 'youtube_music.png');
+    return path.join(process.cwd(), 'public', 'youtube.jpg');
   }
 }
+
 function createOrShowTrayWindow(tray: Tray) {
   if (!trayWindow) {
     trayWindow = new BrowserWindow({
-      width: 200,
-      height: 150,
+      width: 280,
+      height: 120,
       show: false,
       frame: false,
       resizable: false,
@@ -112,6 +123,10 @@ function createOrShowTrayWindow(tray: Tray) {
       : path.join(process.cwd(), 'public', 'tray-menu.html');
     trayWindow.loadFile(trayHtmlPath);
 
+    trayWindow.webContents.setWindowOpenHandler(() => {
+      return { action: 'deny' };
+    });
+    trayWindow.webContents.openDevTools()
   }
 
   const trayBounds = tray.getBounds();
@@ -124,63 +139,54 @@ function createOrShowTrayWindow(tray: Tray) {
 
   trayWindow.on('blur', () => {
     trayWindow.hide();
-  })
+  });
 }
 
-// --- Contrôles reçus depuis le menu tray ---
 ipcMain.on('tray:play', () => {
-  console.log('play')
-  mainWindow?.webContents.send('toggle-playback')
+  mainWindow?.webContents.send('toggle-playback');
 });
+
+ipcMain.on('tray:open-app', () => {
+  mainWindow?.show();
+})
+
 ipcMain.on('tray:next', () => {
-  mainWindow?.webContents.send('next-track')
+  mainWindow?.webContents.send('next-track');
 });
+
 ipcMain.on('tray:prev', () => {
-  mainWindow?.webContents.send('prev-track')
+  mainWindow?.webContents.send('prev-track');
 });
 
 ipcMain.on('tray:quit', () => {
-  BrowserWindow.getAllWindows().forEach(win => {
+  for (const win of BrowserWindow.getAllWindows()) {
     win.removeAllListeners('close');
     win.destroy();
-  });
-
+  }
   app.quit();
 });
 
 function registerMediaShortcuts() {
-  globalShortcut.register('MediaPlayPause', () => {
-    console.log('ici')
-    mainWindow?.webContents.send('toggle-playback')
-  })
-  globalShortcut.register('MediaNextTrack', () => {
-    mainWindow?.webContents.send('next-track')
-  })
-  globalShortcut.register('MediaPreviousTrack', () => {
-    mainWindow?.webContents.send('prev-track')
-  })
+  globalShortcut.register('CommandOrControl+Shift+Space', () => {
+    mainWindow?.webContents.send('toggle-playback');
+  });
+
+  globalShortcut.register('CommandOrControl+Shift+Right', () => {
+    mainWindow?.webContents.send('next-track');
+  });
+
+  globalShortcut.register('CommandOrControl+Shift+Left', () => {
+    mainWindow?.webContents.send('prev-track');
+  });
 }
 
-// This method will be called when Electron has finished
-// initialization and is ready to create browser windows.
-// Some APIs can only be used after this event occurs.
-
-// Quit when all windows are closed, except on macOS. There, it's common
-// for applications and their menu bar to stay active until the user quits
-// explicitly with Cmd + Q.
 app.on('window-all-closed', () => {
-  if (process.platform !== 'darwin') {
-    app.quit();
-  }
+  app.quit();
 });
 
 app.on('activate', () => {
-  // On OS X it's common to re-create a window in the app when the
-  // dock icon is clicked and there are no other windows open.
   if (BrowserWindow.getAllWindows().length === 0) {
     createWindow();
   }
 });
 
-// In this file you can include the rest of your app's specific main process
-// code. You can also put them in separate files and import them here.

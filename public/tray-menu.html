@@ -2,46 +2,75 @@
 <html lang="fr">
 <head>
   <meta charset="UTF-8">
-    <meta http-equiv="Content-Security-Policy"
-          content="default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data:;">
-    <style>
-        body {
-            margin: 0;
-            padding: 10px;
-            background: rgba(30, 30, 30, 0.95);
-            color: white;
-            font-family: system-ui;
-            border-radius: 10px;
-        }
-        button {
-            width: 100%;
-            margin: 4px 0;
-            padding: 8px;
-            border: none;
-            border-radius: 6px;
-            background: #444;
-            color: white;
-            cursor: pointer;
-        }
-        button:hover {
-            background: #666;
-        }
-    </style>
+  <meta http-equiv="Content-Security-Policy"
+        content="default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' 'wasm-unsafe-eval'; style-src 'self' 'unsafe-inline'; img-src 'self' data:;">
+  <style>
+    body {
+      margin: 0;
+      padding: 10px;
+      background: #2b2d30;
+      color: white;
+      font-family: system-ui;
+      border-radius: 4px;
+      display: flex;
+      flex-direction: column;
+      justify-content: space-between;
+      height: 100%;
+    }
+
+    button {
+      margin: 4px 0;
+      padding: 8px;
+      border: none;
+      border-radius: 6px;
+      background: #444;
+      color: white;
+      cursor: pointer;
+    }
+
+    button:hover {
+      background: #666;
+    }
+
+    .controls {
+      display: flex;
+      justify-content: space-between;
+    }
+
+    .footer {
+      display: flex;
+      justify-content: space-between;
+    }
+
+    .footer button {
+      background: none;
+    }
+  </style>
+  <title></title>
 </head>
 <body>
-<button id="play">⏯️ Play / Pause</button>
-<button id="next">⏭️ Next</button>
-<button id="prev">⏮️ Prev</button>
-  <div class="separator"></div>
-  <button id="quit">❌ Quit</button>
+<div class="controls">
+
+  <button id="prev">⏮️ Prev</button>
+  <button id="play">⏯️ Play / Pause</button>
+  <button id="next">⏭️ Next</button>
+</div>
+<div class="footer">
+
+  <button id="quit">Quitter</button>
+  <button id="open-app">Afficher Youtube</button>
+</div>
+
 </body>
 
 <script>
-  // On est dans le contexte du renderer du tray (donc window.electronAPI exposé par preload)
   window.addEventListener('DOMContentLoaded', () => {
-    console.log('window.electronAPI =', window.electronAPI);
     document.getElementById('play')?.addEventListener('click', () => {
       window.electronAPI.play();
+    });
+
+    document.getElementById('open-app')?.addEventListener('click', () => {
+      window.electronAPI.openApp();
     });
     document.getElementById('next')?.addEventListener('click', () => {
       window.electronAPI.next();

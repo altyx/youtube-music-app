@@ -10,9 +10,10 @@ import { FuseV1Options, FuseVersion } from '@electron/fuses';
 const config: ForgeConfig = {
   packagerConfig: {
     asar: true,
-    icon: './public/youtube_music',
+    icon: './public/youtube',
     extraResource: [
-      './public/youtube_music.png',
+      './public/youtube.jpg',
+      './public/youtube.icns',
       './public/tray-menu.html',
     ]
   },

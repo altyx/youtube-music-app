@@ -29,35 +29,43 @@
 
 import './index.css';
 
+let webview: Electron.WebviewTag | null = null;
+
+window.electronAPI.onTogglePlayback(() => {
+  if (webview) {
+    webview.executeJavaScript(`
+      document.querySelector('ytmusic-player-bar #play-pause-button')?.click();
+    `).catch(err => console.error('Erreur toggle playback:', err));
+  } else {
+    console.warn('⚠️ Webview pas encore disponible');
+  }
+});
+
+window.electronAPI.onNextTrack(() => {
+  if (webview) {
+    webview.executeJavaScript(`
+      document.querySelector('ytmusic-player-bar .next-button')?.click();
+    `).catch(err => console.error('Erreur next track:', err));
+  } else {
+    console.warn('⚠️ Webview pas encore disponible');
+  }
+});
+
+window.electronAPI.onPrevTrack(() => {
+  if (webview) {
+    webview.executeJavaScript(`
+      document.querySelector('ytmusic-player-bar .previous-button')?.click();
+    `).catch(err => console.error('Erreur prev track:', err));
+  } else {
+    console.warn('⚠️ Webview pas encore disponible');
+  }
+});
+
 window.addEventListener('DOMContentLoaded', () => {
-  const webview = document.getElementById('ytm') as Electron.WebviewTag;
+  webview = document.getElementById('ytm') as Electron.WebviewTag;
 
-  if (!webview) return console.error('Webview not found');
-
-  // S'assure que la webview est chargée
-  webview.addEventListener('did-finish-load', () => {
-    console.log('Webview loaded, ready to bind controls.');
-
-    // Play / Pause
-    window.electronAPI?.onTogglePlayback(() => {
-      console.log('Toggle playback clicked');
-      webview.executeJavaScript(`
-        document.querySelector('ytmusic-player-bar #play-pause-button')?.click();
-      `);
-    });
-
-    // Next
-    window.electronAPI?.onNextTrack(() => {
-      webview.executeJavaScript(`
-        document.querySelector('ytmusic-player-bar .next-button')?.click();
-      `);
-    });
-
-    // Previous
-    window.electronAPI?.onPrevTrack(() => {
-      webview.executeJavaScript(`
-        document.querySelector('ytmusic-player-bar .previous-button')?.click();
-      `);
-    });
-  });
+  if (!webview) {
+    console.error('❌ Webview not found');
+    return;
+  }
 });
