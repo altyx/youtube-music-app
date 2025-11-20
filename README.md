@@ -1,33 +1,33 @@
 Youtube music desktop application player
 
-/!\ This is ***not*** affiliated to Youtube, Youtube Music is a trademark of Google Inc.
+/!\ This is ***not*** affiliated with Youtube, Youtube Music is a trademark of Google Inc.
 
 /!\ This project is still under development.
 
-## Fonctionnalités
+## Features
 
-✅ **Touches multimédia du clavier** : Play/Pause, Next, Previous  
-✅ **Raccourcis clavier** : Cmd+Shift+Space, Cmd+Shift+←/→  
-✅ **System Tray** : Contrôles rapides depuis la barre de menu  
-✅ **Intégration macOS** : Métadonnées et pochette dans le centre de contrôle
+✅ **Media keyboard keys**: Play/Pause, Next, Previous  
+✅ **Keyboard shortcuts**: Cmd+Shift+Space, Cmd+Shift+←/→  
+✅ **System Tray**: Quick controls from the menu bar  
+✅ **macOS Integration**: Metadata and artwork in the control center
 
-## Contrôles
+## Controls
 
-### 🎹 Touches multimédia (clavier)
+### 🎹 Media keys (keyboard)
 
-Les touches **Play/Pause**, **Next** et **Previous** de votre clavier fonctionnent automatiquement grâce à l'API Media Session intégrée.
+The **Play/Pause**, **Next** and **Previous** keys on your keyboard work automatically thanks to the built-in Media Session API.
 
-> **Note** : Les touches multimédia doivent être détectées automatiquement sur macOS. Si elles ne fonctionnent pas, c'est probablement qu'une autre application (Spotify, Apple Music, etc.) les capture en priorité.
+> **Note**: Media keys should be detected automatically on macOS. If they don't work, it's probably because another application (Spotify, Apple Music, etc.) is capturing them with priority.
 
-### ⌨️ Raccourcis clavier
+### ⌨️ Keyboard shortcuts
 
-- **⌘ + Shift + Space** : Play/Pause
-- **⌘ + Shift + →** : Piste suivante
-- **⌘ + Shift + ←** : Piste précédente
+- **⌘ + Shift + Space**: Play/Pause
+- **⌘ + Shift + →**: Next track
+- **⌘ + Shift + ←**: Previous track
 
 ### 🎵 System Tray
 
-Cliquez sur l'icône YouTube Music dans la barre de menu pour accéder aux contrôles rapides (Play/Pause, Next, Previous, Ouvrir l'app, Quitter).
+Click on the YouTube Music icon in the menu bar to access quick controls (Play/Pause, Next, Previous, Open app, Quit).
 
 ## Installation
 
@@ -42,13 +42,13 @@ npm start
 npm run package
 ```
 
-## Comment ça marche ?
+## How does it work?
 
-L'application injecte l'API **Media Session** directement dans la webview YouTube Music, ce qui permet :
+The application injects the **Media Session** API directly into the YouTube Music webview, which allows:
 
-1. ✅ De capturer les touches multimédia du clavier
-2. ✅ D'afficher les métadonnées (titre, artiste, pochette) dans le centre de contrôle macOS
-3. ✅ De synchroniser l'état de lecture (play/pause)
+1. ✅ Capturing media keyboard keys
+2. ✅ Displaying metadata (title, artist, artwork) in the macOS control center
+3. ✅ Synchronizing playback state (play/pause)
 
-Cela fonctionne **nativement** sans bibliothèque externe, uniquement avec les API web standards.
+This works **natively** without external libraries, only using standard web APIs.
 
