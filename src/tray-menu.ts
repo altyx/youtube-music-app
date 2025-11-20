@@ -9,6 +9,6 @@ contextBridge.exposeInMainWorld('electronAPI', {
   quit: () => ipcRenderer.send('tray:quit'),
 });
 
-delete (globalThis as any).require;
-delete (globalThis as any).exports;
+delete (globalThis).require;
+delete (globalThis).exports;
 
